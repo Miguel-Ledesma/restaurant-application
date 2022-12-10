@@ -53,18 +53,16 @@ public class restaurantGUI extends AppCompatActivity {
                 findViewById(id).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (mDisplay.getText().equals("")) {
+                            return;
+                        }
                         String query = "SELECT * FROM " +
                                 restaurantContract.Employee.TABLE_NAME + " WHERE _id = '" +
                                 mDisplay.getText() + "'";
-                        Log.i("TEXT INSIDE", "" + mDisplay.getText());
                         Cursor cursor = db.rawQuery(query, null);
                         if (cursor.getCount() > 0) {
                             Log.i("IM HERE!", "HERE OVER HERE" + cursor.getCount());
                         }
-//                        long result =
-//                            DatabaseUtils.queryNumEntries(db,
-//                            restaurantContract.Employee.TABLE_NAME);
-//                        Log.i("NUMBER OF ENTRIES", "ENTRY" + result);
                     }
                 });
             }
@@ -123,7 +121,6 @@ public class restaurantGUI extends AppCompatActivity {
     }
 
     private void addSamples() {
-        Log.i("ADDED THE SAMPLE HERE", "OVER HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         new AddSampleUserTask().execute((Void[])null);
     }
 
