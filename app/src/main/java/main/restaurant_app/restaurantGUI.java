@@ -1,13 +1,17 @@
 package main.restaurant_app;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,8 +49,28 @@ public class restaurantGUI extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mDisplay = findViewById(R.id.display);
+        // CREATE DIALOG WHEN ID IS INCORRECT
+        final AlertDialog wrongID = new AlertDialog.Builder(this)
+                .setTitle("Wrong ID")
+                .setMessage("This ID does not exist!").create();
+        wrongID.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                new CountDownTimer(2000, 1000) {
+
+                    @Override
+                    public void onTick(long millisUntilFinished){}
+
+                    @Override
+                    public void onFinish() {
+                        if(wrongID.isShowing()) {
+                            wrongID.dismiss();
+                        }
+                    }
+                }.start();
+            }
+        });
 
         for (int id: buttonIDs) {
             if (id == R.id.enter_button) {
@@ -54,6 +78,7 @@ public class restaurantGUI extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         if (mDisplay.getText().equals("")) {
+                            wrongID.show();
                             return;
                         }
                         String query = "SELECT * FROM " +
@@ -61,7 +86,42 @@ public class restaurantGUI extends AppCompatActivity {
                                 mDisplay.getText() + "'";
                         Cursor cursor = db.rawQuery(query, null);
                         if (cursor.getCount() > 0) {
-                            Log.i("IM HERE!", "HERE OVER HERE" + cursor.getCount());
+                            //Log.i("IM HERE!", "HERE OVER HERE" + cursor.getCount());
+                            cursor.moveToFirst();  //CURSOR POINTS TO ENTRIES, NOT COLUMNS
+                            //CHECK FOR ADMIN
+                            if (cursor.getInt(4) == 1) {
+                                Intent adminAct = new Intent(restaurantGUI.this,
+                                        AdminAct.class);
+                                startActivity(adminAct);
+                            }
+                            //CHECK FOR MANAGER
+                            else if (cursor.getInt(3) == 1) {
+                                Intent manageAct = new Intent(restaurantGUI.this,
+                                        ManagAct.class);
+                                startActivity(manageAct);
+                            }
+                            //CHECK FOR FOH OR BOH
+                            else {
+                                if (cursor.getString(2) == "FOH") {
+                                    Intent fohAct = new Intent(restaurantGUI.this,
+                                            FOHAct.class);
+                                    startActivity(fohAct);
+                                }
+                                else if (cursor.getString(2) == "BOH") {
+                                    Intent bohAct = new Intent(restaurantGUI.this,
+                                            BOHAct.class);
+                                    startActivity(bohAct);
+                                }
+                            }
+
+                        }
+                        else {
+                            //Log.i("TEXT Length", "" + mDisplay.getText().length());
+                            int lengthDisplay = mDisplay.getText().length();
+                            for(int i = 0; i < lengthDisplay; i++) {
+                                mDisplay.setText(mHelper.addKey("backspace"));
+                            }
+                            wrongID.show();
                         }
                     }
                 });

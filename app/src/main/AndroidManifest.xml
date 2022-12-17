@@ -17,6 +17,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AdminAct"
+            android:label="@string/app_name"></activity>
+        <activity android:name=".ManagAct"
+            android:label="@string/app_name"></activity>
+        <activity android:name=".FOHAct"
+            android:label="@string/app_name"></activity>
+        <activity android:name=".BOHAct"
+            android:label="@string/app_name"></activity>
     </application>
+
 
 </manifest>
